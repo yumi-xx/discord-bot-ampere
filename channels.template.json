@@ -1,0 +1,11 @@
+{
+	"GUILD-ID": {
+		"channels": [
+			{
+				"name": "CHANNEL-NAME",
+				"category": "CATEGORY-NAME",
+				"description": "DESCRIPTION"
+			}
+		]
+	}
+}
