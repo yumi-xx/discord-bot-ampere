@@ -50,13 +50,16 @@ function setupCleaningTimer(bot, guild) {
 	var offset = now.utcOffset();
 
 	var later = moment(new Date(utc.getFullYear(), utc.getMonth(),
-		utc.getDate(), hour, -offset, 0, 0), timezone).tz(timezone);
+		utc.getDate(), hour, -offset, 5, 0), timezone).tz(timezone);
 
 	var warnLater = later.clone();
 	warnLater.add(-1*warnminutes, "minutes");
 
 	if (now.isAfter(later))
 		later.add(1, "day");
+
+	if (now.isAfter(warnLater))
+		warnLater.add(1, "day");
 
 	var cleanAt = later.valueOf() - now.valueOf();
 
@@ -68,14 +71,14 @@ function setupCleaningTimer(bot, guild) {
 		setupCleaningTimer(bot, guild);
 	}, cleanAt);
 
-	bot.setTimeout(function() {
-		var close = later.format("hA");
-		warnClean(bot, guild,
-			`:warning:
-This channel is cleaned nightly at ${close} (${warnminutes} minutes)`);
-	}, warnCleanAt);
-
-	console.info("Clearing messages in " + Math.round(cleanAt / 1000 / 60) + " minutes...");
+	// Schedule a warning message only if we have time
+	if (later.isAfter(warnLater))
+		bot.setTimeout(function() {
+			var close = later.format("hA");
+			warnClean(bot, guild,
+				`:warning:
+	This channel is cleaned nightly at ${close} (${warnminutes} minutes)`);
+		}, warnCleanAt);
 }
 
 function warnClean(bot, guild, message) {
