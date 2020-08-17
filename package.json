@@ -1,0 +1,15 @@
+{
+  "name": "ampere-discord-bot",
+  "version": "0.0.1",
+  "description": "Discord bot for NCSU-ECE",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Prettyboy-Yumi",
+  "license": "BSD 3-clause",
+  "dependencies": {
+    "discord.js": "^12.3.1",
+    "moment-timezone": "^0.5.31"
+  }
+}
