@@ -127,7 +127,9 @@ function createMissingChannels(bot, guild) {
 					"type": "text",
 					"topic": c.description,
 					"parent": below
-				});
+				}).then(channel => {
+					createInitialPinned(channel);
+				})
 			}
 		}
 	});
@@ -151,22 +153,34 @@ function wipeClean(bot, guild) {
 	});
 }
 
-function wipeCleanChannel(channel) {
-	console.log(channel.messages);
-	channel.messages.fetch().then(messages => {
-		console.log(`Bulk deleting messages in #${channel.name}`);
-		channel.bulkDelete(messages);
-
-		if (channel.topic)
-			channel.send(`:coffee:
+function createInitialPin(channel) {
+	var msg;
+	if (channel.topic) msg =`:coffee:
 Welcome to ${channel}: ${channel.topic}
 *All discussion here is scrubbed daily*
----`);
-		else
-			channel.send(`:coffee:
+---`;
+	else msg = `:coffee:
 Welcome to ${channel}: Nightly Discussion channel
 *All discussion here is scrubbed daily*
----`);
+---`;
+	channel.send(msg).then(m => {
+		m.pin();
+	}).catch(console.error);
+}
+
+function wipeCleanChannel(channel) {
+	channel.messages.fetch().then(messages => {
+		// Don't delete the message pinned to the top
+		var hasPin = false;
+		var del = messages.filter(m => !(bot.user == m.author && m.pinned));
+
+		console.log(`Bulk deleting messages in #${channel.name}`);
+		channel.bulkDelete(del).then(del => {
+			if (messages.array().length === del.array().length) {
+				console.log("No pins! Creating an initial pin...");
+				createInitialPin(channel);
+			}
+		});
 
 	}).catch(console.error);
 }
